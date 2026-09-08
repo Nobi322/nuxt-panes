@@ -4,11 +4,11 @@
   "description": "Retained-page tabs for Nuxt. Real history, mounted panes, Chrome-like strip.",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dl-ias/nuxt-panes.git"
+    "url": "git+https://github.com/nobi322/nuxt-panes.git"
   },
-  "homepage": "https://github.com/dl-ias/nuxt-panes#readme",
+  "homepage": "https://github.com/nobi322/nuxt-panes#readme",
   "bugs": {
-    "url": "https://github.com/dl-ias/nuxt-panes/issues"
+    "url": "https://github.com/nobi322/nuxt-panes/issues"
   },
   "license": "MIT",
   "type": "module",

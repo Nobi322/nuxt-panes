@@ -41,8 +41,6 @@ CI runs prepare, lint, test, prepack.
 pnpm release        # lint, test, prepack, changelogen, npm publish, push tags
 ```
 
-Do not publish from a dirty tree. First publish is `0.1.0`. Package name `nuxt-panes` (unscoped). GitHub `dl-ias/nuxt-panes`.
+Do not publish from a dirty tree. First publish is `0.1.0`. Package name `nuxt-panes` (unscoped). GitHub `nobi322/nuxt-panes`.
 
-## Consumer (first-nuxt-web)
-
-Sibling app uses `"nuxt-panes": "file:../nuxt-panes"` until the npm version is pinned. Rebuild this package (`pnpm prepack`) after source changes or the app keeps the old `dist`.
+A host app that depends via `file:../nuxt-panes` keeps the last `dist/` until you run `pnpm prepack` again.
