@@ -1,0 +1,15 @@
+node_modules
+.env
+dist
+.nuxt
+.output
+.data
+coverage
+*.log
+.DS_Store
+.eslintcache
+*.tgz
+.idea
+playground/.nuxt
+playground/.output
+playground/.data

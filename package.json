@@ -1,0 +1,74 @@
+{
+  "name": "nuxt-panes",
+  "version": "0.1.0",
+  "description": "Retained-page tabs for Nuxt. Real history, mounted panes, Chrome-like strip.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dl-ias/nuxt-panes.git"
+  },
+  "homepage": "https://github.com/dl-ias/nuxt-panes#readme",
+  "bugs": {
+    "url": "https://github.com/dl-ias/nuxt-panes/issues"
+  },
+  "license": "MIT",
+  "type": "module",
+  "author": "Denis Lobzenko <dl@ideas-solutions.net>",
+  "keywords": [
+    "nuxt",
+    "nuxt-module",
+    "tabs",
+    "panes",
+    "dashboard",
+    "vue"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/types.d.mts",
+      "import": "./dist/module.mjs"
+    }
+  },
+  "main": "./dist/module.mjs",
+  "typesVersions": {
+    "*": {
+      ".": [
+        "./dist/types.d.mts"
+      ]
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "prepack": "nuxt-module-build build",
+    "build": "nuxt-module-build build",
+    "dev": "pnpm dev:prepare && nuxt dev playground",
+    "dev:build": "nuxt build playground",
+    "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxt prepare playground",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest watch",
+    "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit",
+    "release": "pnpm lint && pnpm test && pnpm prepack && changelogen --release && npm publish && git push --follow-tags"
+  },
+  "dependencies": {
+    "@nuxt/kit": "^4.4.0"
+  },
+  "peerDependencies": {
+    "nuxt": ">=3.0.0"
+  },
+  "devDependencies": {
+    "@nuxt/eslint-config": "^1.16.0",
+    "@nuxt/module-builder": "^1.0.3",
+    "@nuxt/schema": "^4.4.8",
+    "changelogen": "^0.6.2",
+    "eslint": "^10.6.0",
+    "nuxt": "^4.4.8",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.10",
+    "vue-tsc": "^3.3.5"
+  },
+  "packageManager": "pnpm@11.9.0",
+  "publishConfig": {
+    "access": "public"
+  }
+}
