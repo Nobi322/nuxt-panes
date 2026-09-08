@@ -22,7 +22,7 @@ If the host wraps the layout, every tab remounts the sidebar. If the host is mis
 
 Each pane is a `Pane`:
 
-- `id` like `pane:/dashboard` (or `pane:<key>` for singletons)
+- `id` like `pane:/app` (or `pane:<key>` for singletons)
 - `canonicalKey` that decides identity
 - `href` last pathname shown in that pane
 - `label`, `closable`, `reuse` globs
@@ -95,14 +95,14 @@ Restored panes start `warm: false`. `PanePage` still mounts `NuxtPage` when the 
 
 ## Background work
 
-Hidden panes are alive. A GraphQL subscription in a hidden race hub will keep running unless you stop it.
+Hidden panes are alive. A websocket or polling loop in a hidden tab keeps running unless you stop it.
 
 `PanePage` provides activity through `usePaneActivity()`. `usePaneEnabled()` is `true` only when *this* pane is the active one.
 
 ```ts
 const enabled = usePaneEnabled()
 
-const query = useQuery(RaceCardDocument, () => ({ id: raceId.value }), {
+const query = useQuery(ItemDocument, () => ({ id: itemId.value }), {
   enabled
 })
 ```
@@ -110,10 +110,10 @@ const query = useQuery(RaceCardDocument, () => ({ id: raceId.value }), {
 AND an extra flag if you also need a selected id:
 
 ```ts
-const enabled = usePaneEnabled(() => !!raceId.value)
+const enabled = usePaneEnabled(() => !!itemId.value)
 ```
 
-Code that is *not* inside a pane (layout `useDaySchedule`, command palette) should not use this. Inject default is "always on", which is what you want for the layout, and also what unit tests get when they call the composable outside setup.
+Code that is *not* inside a pane (layout clock, command palette) should not use this. Inject default is "always on", which is what you want for the layout, and also what unit tests get when they call the composable outside setup.
 
 ## Query strings
 

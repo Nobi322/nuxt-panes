@@ -2,7 +2,7 @@
 
 Retained-page tabs for Nuxt. One router, several mounted page instances, Back and Forward are real browser history.
 
-SPA dashboards keep asking for Google Chrome-style tabs: leave the page running when you switch away, come back to the same scroll and the same form. Most implementations fake that with `KeepAlive` and then fight the browser. This module does not. Each tab is a real `NuxtPage`. Each visit still pushes a real history entry. Closing a tab does not splice history.
+SPA apps keep asking for Google Chrome-style tabs: leave the page running when you switch away, come back to the same scroll and the same form. Most implementations fake that with `KeepAlive` and then fight the browser. This module does not. Each tab is a real `NuxtPage`. Each visit still pushes a real history entry. Closing a tab does not splice history.
 
 **Nuxt 3+.** Client-side after mount. The first SSR paint is a normal `NuxtPage`.
 
@@ -54,11 +54,10 @@ Build the package first (`pnpm prepack` in this repo) so `dist/` exists.
 ```vue
 <!-- layouts/default.vue -->
 <template>
-  <UDashboardNavbar>
-    <template #left>
-      <PaneTabs />
-    </template>
-  </UDashboardNavbar>
+  <header>
+    <PaneTabs />
+  </header>
+  <slot />
 </template>
 ```
 
@@ -69,7 +68,7 @@ export default defineNuxtConfig({
   modules: ['nuxt-panes'],
   panes: {
     exclude: ['/', '/login'],
-    homePath: '/dashboard'
+    homePath: '/app'
   },
   routeRules: {
     '/login': { panes: false }
@@ -119,7 +118,7 @@ Stay vs new pane on a **single click** (works on `NuxtLink`, `UButton :to`, any 
 
 `paneIn('/x')` is `/x?tab=in`. The plugin reads it, then `replace`s the URL so the query is gone. Default unmarked links still open a new pane. Page-level `reuse` globs still exist for hubs where every matching dest should stay.
 
-Tab labels come from `definePageMeta({ title })`, else the last path segment. Rename the active tab at runtime with `usePanes().setCurrentLabel('R3 · Belmont')`.
+Tab labels come from `definePageMeta({ title })`, else the last path segment. Rename the active tab at runtime with `usePanes().setCurrentLabel('Invoice 1842')`.
 
 ## What close does, and what it does not
 

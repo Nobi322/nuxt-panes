@@ -24,7 +24,7 @@ export default defineNuxtConfig({
   modules: ['nuxt-panes'],
   panes: {
     exclude: ['/', '/login'],
-    homePath: '/dashboard',
+    homePath: '/app',
     maxPanes: 12,
     persist: true,
     rules: {
@@ -68,8 +68,8 @@ export default defineNuxtConfig({
 
 ```ts
 definePageMeta({
-  title: 'Race',
-  panes: { reuse: '/meetings/*/*' }
+  title: 'Project',
+  panes: { reuse: '/projects/*/*' }
 })
 ```
 
@@ -108,9 +108,9 @@ Used by `exclude`, `rules`, `routeRules` keys, and `reuse`.
 To stay or force a dest tab on **one link** without wrapping `NuxtLink`, put a query flag on `:to`. The plugin strips it after the navigation (push, then replace the same entry so Back is clean).
 
 ```vue
-<NuxtLink :to="paneIn('/inbox/42')" />  <!-- /inbox/42?tab=in -->
+<NuxtLink :to="paneIn('/mail/42')" />  <!-- /mail/42?tab=in -->
 <UButton :to="paneTab(path)" />
-<TableRowLink :to="paneIn(rowHref)" />
+<NuxtLink :to="paneIn(rowHref)" />
 ```
 
 | Query | Effect |
@@ -123,7 +123,7 @@ Rename the flag with `panes.queryKey` if `tab` is already an app filter.
 
 ## Pinned vs `closable: false`
 
-`pinned: ['dashboard']` marks canonical key `dashboard` (or `/dashboard` if you never set `key`) as unclosable.
+`pinned: ['/app']` marks canonical key `/app` as unclosable. Use `pinned: ['settings']` when the rule set `key: 'settings'`.
 
 `{ closable: false }` on a rule does the same for routes that hit that rule.
 

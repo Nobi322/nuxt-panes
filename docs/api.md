@@ -81,9 +81,9 @@ Shared pane controller. Safe in the layout and in pages.
 String in, string out. Appends `?tab=in` or `?tab=new` (or your `queryKey`). Use on any `:to`.
 
 ```ts
-paneIn('/rdc/1/2')              // '/rdc/1/2?tab=in'
-paneIn('/rdc/1/2?foo=1')        // '/rdc/1/2?foo=1&tab=in'
-paneTab(rdcRacePath(m, r))      // '...?tab=new'
+paneIn('/projects/acme/board')              // '/projects/acme/board?tab=in'
+paneIn('/projects/acme/board?foo=1')        // '/projects/acme/board?foo=1&tab=in'
+paneTab(itemPath(org, id))                 // '...?tab=new'
 ```
 
 ### `usePaneEnabled(extra?)`
