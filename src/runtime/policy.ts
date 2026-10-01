@@ -21,6 +21,9 @@ export type RouteMetaLite = {
 export type ClassifiedRoute = {
   enabled: boolean
   canonicalKey: string
+  /** Normalized pathname. Drives rules, identity and the page key. */
+  path: string
+  /** Full destination: path, query and hash, minus the pane hint. */
   href: string
   defaultLabel: string
   reuse: string[]
@@ -42,6 +45,31 @@ export function normalizePath(path: string) {
   if (!raw.startsWith('/')) return `/${raw}`
   if (raw.length > 1 && raw.endsWith('/')) return raw.slice(0, -1)
   return raw || '/'
+}
+
+function decodeKey(raw: string) {
+  try {
+    return decodeURIComponent(raw.replace(/\+/g, ' '))
+  } catch {
+    return raw
+  }
+}
+
+/**
+ * Normalized path plus the original query and hash, with `queryKey` removed.
+ * Other params are kept verbatim so their encoding round-trips untouched.
+ */
+export function paneDestination(fullPath: string, queryKey?: string) {
+  const hashAt = fullPath.indexOf('#')
+  const hash = hashAt >= 0 ? fullPath.slice(hashAt) : ''
+  const beforeHash = hashAt >= 0 ? fullPath.slice(0, hashAt) : fullPath
+  const queryAt = beforeHash.indexOf('?')
+  const rawQuery = queryAt >= 0 ? beforeHash.slice(queryAt + 1) : ''
+  const query = rawQuery
+    .split('&')
+    .filter(pair => pair && (!queryKey || decodeKey(pair.split('=')[0] ?? '') !== queryKey))
+    .join('&')
+  return `${normalizePath(fullPath)}${query ? `?${query}` : ''}${hash === '#' ? '' : hash}`
 }
 
 export function pathMatches(pattern: string, path: string): boolean {
@@ -119,16 +147,19 @@ export function resolveRule(path: string, meta: RouteMetaLite, config: PanesConf
   return config.defaultRule
 }
 
+/** `fullPath` may carry query and hash; identity and rules only look at the path. */
 export function classifyRoute(
-  path: string,
+  fullPath: string,
   meta: RouteMetaLite = {},
   config: PanesConfig = PANES_DEFAULTS
 ): ClassifiedRoute {
-  const href = normalizePath(path)
-  const rule = resolveRule(href, meta, config)
+  const path = normalizePath(fullPath)
+  const href = paneDestination(fullPath, config.queryKey)
+  const rule = resolveRule(path, meta, config)
   const disabled: ClassifiedRoute = {
     enabled: false,
     canonicalKey: '',
+    path,
     href,
     defaultLabel: '',
     reuse: [],
@@ -136,14 +167,15 @@ export function classifyRoute(
   }
   if (!config.enabled || rule === false) return disabled
 
-  const canonicalKey = rule.key || href
+  const canonicalKey = rule.key || path
   const reuse = asReuseList(rule.reuse)
   const pinned = config.pinned.includes(canonicalKey)
   return {
     enabled: true,
     canonicalKey,
+    path,
     href,
-    defaultLabel: labelFrom(href, meta),
+    defaultLabel: labelFrom(path, meta),
     reuse,
     closable: rule.closable ?? !pinned
   }
@@ -207,7 +239,7 @@ export function intentForPush(input: {
   if (input.ownerId) return { id: input.ownerId, mode: 'activate' }
   if (input.hint === 'in' && input.activeId) return { id: input.activeId, mode: 'activate' }
   if (input.hint === 'new') return { id: paneId(input.to.canonicalKey), mode: 'open' }
-  if (input.activeId && reuseHits(input.reuseGlobs, input.to.href)) {
+  if (input.activeId && reuseHits(input.reuseGlobs, input.to.path)) {
     return { id: input.activeId, mode: 'activate' }
   }
   return { id: paneId(input.to.canonicalKey), mode: 'open' }

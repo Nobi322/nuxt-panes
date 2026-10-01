@@ -10,6 +10,7 @@ import {
   makePane,
   neighborAfterClose,
   ownerForCanonical,
+  paneDestination,
   readStamp,
   type Pane
 } from '../policy'
@@ -21,8 +22,8 @@ type Persisted = {
   panes: Array<Pick<Pane, 'id' | 'canonicalKey' | 'href' | 'label' | 'closable' | 'reuse'>>
 }
 
-function snapshotRoute(router: Router, path: string): RouteLocationNormalizedLoaded {
-  const resolved = router.resolve(path)
+function snapshotRoute(router: Router, href: string): RouteLocationNormalizedLoaded {
+  const resolved = router.resolve(href)
   return {
     ...resolved,
     params: { ...resolved.params },
@@ -30,6 +31,12 @@ function snapshotRoute(router: Router, path: string): RouteLocationNormalizedLoa
     hash: resolved.hash,
     matched: resolved.matched.slice()
   } as RouteLocationNormalizedLoaded
+}
+
+/** Split a stored href so `router.push` keeps its query and hash next to `state`. */
+function locationOf(router: Router, href: string) {
+  const { path, query, hash } = router.resolve(href)
+  return { path, query, hash }
 }
 
 const routeById = shallowRef<Record<string, RouteLocationNormalizedLoaded>>({})
@@ -60,17 +67,17 @@ export function usePanes() {
     )
   }
 
-  function setRouteSnapshot(id: string, path: string) {
+  function setRouteSnapshot(id: string, href: string) {
     if (!import.meta.client) return
-    routeById.value = { ...routeById.value, [id]: snapshotRoute(router, path) }
+    routeById.value = { ...routeById.value, [id]: snapshotRoute(router, href) }
   }
 
   function paneById(id: string) {
     return panes.value.find(pane => pane.id === id)
   }
 
-  function classify(path: string, meta: Record<string, unknown> = {}) {
-    return classifyRoute(path, meta, config)
+  function classify(fullPath: string, meta: Record<string, unknown> = {}) {
+    return classifyRoute(fullPath, meta, config)
   }
 
   function select(pane: Pane, classified: ReturnType<typeof classifyRoute>) {
@@ -118,15 +125,15 @@ export function usePanes() {
   function bootstrap() {
     if (bootstrapped.value) return
     bootstrapped.value = true
-    const classified = classify(route.path, route.meta)
+    const classified = classify(route.fullPath, route.meta)
     if (!classified.enabled) return
     restore()
     const pane = ensurePane(classified, readStamp(import.meta.client ? history.state : null, config.historyKey) ?? undefined)
     if (pane) apply(pane, classified)
   }
 
-  function reconcile(path: string, meta: Record<string, unknown>) {
-    const classified = classify(path, meta)
+  function reconcile(fullPath: string, meta: Record<string, unknown>) {
+    const classified = classify(fullPath, meta)
     if (!classified.enabled) {
       activeId.value = null
       return
@@ -158,13 +165,13 @@ export function usePanes() {
   }
 
   async function activate(pane: Pane) {
-    if (pane.id === activeId.value && route.path === pane.href) {
+    if (pane.id === activeId.value && paneDestination(route.fullPath, config.queryKey) === pane.href) {
       stampPane(pane.id)
       return
     }
     pending.value = { id: pane.id, mode: 'activate' }
     await router.push({
-      path: pane.href,
+      ...locationOf(router, pane.href),
       state: { [config.historyKey]: { v: 1, id: pane.id } }
     })
   }
@@ -185,7 +192,7 @@ export function usePanes() {
     const dest = neighbor?.href ?? config.homePath
     if (neighbor) pending.value = { id: neighbor.id, mode: 'activate' }
     await router.replace({
-      path: dest,
+      ...locationOf(router, dest),
       state: neighbor ? { [config.historyKey]: { v: 1, id: neighbor.id } } : {}
     })
   }

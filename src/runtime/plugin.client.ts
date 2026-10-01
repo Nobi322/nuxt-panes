@@ -27,7 +27,7 @@ export default defineNuxtPlugin({
         popping = false
         return
       }
-      const classified = panesCtrl.classify(to.path, to.meta)
+      const classified = panesCtrl.classify(to.fullPath, to.meta)
       const owner = ownerForCanonical(panesCtrl.panes.value, classified.canonicalKey)
       const active = panesCtrl.panes.value.find(pane => pane.id === panesCtrl.activeId.value)
       const intent = intentForPush({
@@ -52,7 +52,7 @@ export default defineNuxtPlugin({
       if (stripping) {
         stripping = false
       } else {
-        panesCtrl.reconcile(to.path, to.meta)
+        panesCtrl.reconcile(to.fullPath, to.meta)
       }
 
       if (!readPaneHint(to.query, queryKey)) return

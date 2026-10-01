@@ -7,6 +7,7 @@ import {
   makePane,
   neighborAfterClose,
   ownerForCanonical,
+  paneDestination,
   paneId,
   pathMatches,
   readStamp,
@@ -187,5 +188,27 @@ describe('pane helpers', () => {
     expect(ownerForCanonical([pane], '/x')?.id).toBe(paneId('/x'))
     expect(readStamp({ __nuxtPane: { v: 1, id: 'pane:/x' } }, '__nuxtPane')).toBe('pane:/x')
     expect(readStamp({}, '__nuxtPane')).toBeNull()
+  })
+})
+
+describe('destinations', () => {
+  it('1. href keeps query and hash, identity stays path-based', () => {
+    const a = classifyRoute('/dashboard/streams/?date=2025-02-02#top', {}, config)
+    const b = classifyRoute('/dashboard/streams?date=2025-03-03', {}, config)
+    expect(a.path).toBe('/dashboard/streams')
+    expect(a.href).toBe('/dashboard/streams?date=2025-02-02#top')
+    expect(a.canonicalKey).toBe(b.canonicalKey)
+  })
+
+  it('2. pane hint is removed, other params keep their encoding', () => {
+    expect(paneDestination('/a?tab=new&q=a%20b+c&x=1#h', 'tab')).toBe('/a?q=a%20b+c&x=1#h')
+    expect(paneDestination('/a?tab=in', 'tab')).toBe('/a')
+    expect(classifyRoute('/a?tab=in&page=2', {}, config).href).toBe('/a?page=2')
+  })
+
+  it('3. reuse globs match the path, not the query', () => {
+    const to = classifyRoute('/rdc/1/3?lap=2', {}, config)
+    expect(intentForPush({ to, ownerId: null, activeId: 'pane:/rdc/1/2', reuseGlobs: ['/rdc/*/*'] }))
+      .toEqual({ id: 'pane:/rdc/1/2', mode: 'activate' })
   })
 })

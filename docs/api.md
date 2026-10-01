@@ -140,4 +140,4 @@ type Pane = {
 
 `runtime/policy.ts` is pure. Tests import it directly. You can too, but the composable is the supported app API.
 
-Useful if you are writing a custom controller: `pathMatches`, `classifyRoute`, `intentForPush`, `evictExtras`, `neighborAfterClose`.
+Useful if you are writing a custom controller: `pathMatches`, `classifyRoute`, `paneDestination`, `intentForPush`, `evictExtras`, `neighborAfterClose`.
