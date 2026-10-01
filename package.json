@@ -1,6 +1,6 @@
 {
   "name": "nuxt-panes",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Retained-page tabs for Nuxt. Real history, mounted panes, Chrome-like strip.",
   "repository": {
     "type": "git",
