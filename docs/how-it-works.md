@@ -24,7 +24,7 @@ Each pane is a `Pane`:
 
 - `id` like `pane:/app` (or `pane:<key>` for singletons)
 - `canonicalKey` that decides identity
-- `href` last pathname shown in that pane
+- `href` last full destination shown in that pane (path, query, hash; the `tab` hint is stripped)
 - `label`, `closable`, `reuse` globs
 - `warm` / `lastActivatedAt` for LRU
 
@@ -34,7 +34,7 @@ The page instance is:
 <NuxtPage
   :key="pane.id"
   :route="resolvedRoute"
-  :page-key="pane.href"
+  :page-key="normalizePath(pane.href)"
   :keepalive="false"
 />
 ```
@@ -117,6 +117,8 @@ Code that is *not* inside a pane (layout clock, command palette) should not use 
 
 ## Query strings
 
-`normalizePath` drops `?` and `#`. The plugin classifies `to.path`, not `to.fullPath`.
+The plugin classifies `to.fullPath`. Identity, rules and `reuse` globs only look at the normalized path, so `/inbox?tag=work` and `/inbox?tag=home` are the same pane.
 
-`/inbox?tag=work` opens or focuses `/inbox`. The stored `href` has no query. Activating that tab later goes to `/inbox`. If your app's state lives in the query, either put it in pane-local component state or wait for this module to store `fullPath`. It does not today.
+The pane's `href` keeps the query and hash. A query-only navigation updates that href in place. Activating the tab later, closing the active neighbor, or restoring the session goes back to `/inbox?tag=work`, not `/inbox`. The `queryKey` hint (`tab=in|new`) is removed before the href is stored.
+
+The page key is the path, so a query or hash change hands the retained page a new `resolvedRoute` without remounting it. Watch `useRoute().query` if the page reads filters from the URL.
